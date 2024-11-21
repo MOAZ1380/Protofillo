@@ -2,6 +2,7 @@ const User = require('../models/Users_Schema');
 const bcrypt = require('bcryptjs');
 const validator = require('validator');
 const http_status = require('../utils/http_status');
+const generateToken = require('../utils/generate_token');
 
 const user_register = async (req, res, next) => {
     try {
@@ -43,13 +44,14 @@ const user_register = async (req, res, next) => {
             email,
             password: hashedPassword,
         });
-
+        const token =  await generateToken({email: new_user.email, id: new_user._id});
         await new_user.save();
 
         res.status(201).json({
             status: http_status.SUCCESS,
-            data: { user: new_user },
+            data: { user: new_user , my_token: token},
         });
+
     } catch (err) {
         res.status(500).json({
             message: "Internal server error",
@@ -89,11 +91,14 @@ const user_login = async (req, res, next) => {
                 status_text: http_status.FAIL,
             });
         }
-
+        const token = await generateToken({email: user.email, id: user._id});
+        
+        
         res.status(200).json({
             status: http_status.SUCCESS,
-            data: { message: "Login successful" },
+            data: { message: "Login successful", my_token: token}
         });
+    
     } catch (err) {
         res.status(500).json({
             message: "Internal server error",

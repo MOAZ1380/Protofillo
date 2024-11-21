@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const validator = require('validator');
 
 const User_Schema = mongoose.Schema({
     firstName: {
@@ -12,16 +11,16 @@ const User_Schema = mongoose.Schema({
     },
     sex: {
         type: String,
-        enum: ['male', 'female'],
+        enum: ['male', 'female'],       // Must be either 'male' or 'female'
         required: true ,
     },
     photo: {
         type: String,
-        default: '../uploads/profile.jpg'
+        default: '../uploads/profile.jpg'      // Default profile picture
     },
     createdAt: {
         type: Date,
-        default:  Date.now
+        default:  Date.now           // Automatically sets the creation date
     },
     birthDate: {
         type: Date,
@@ -29,13 +28,17 @@ const User_Schema = mongoose.Schema({
     },
     email: {
         type: String,
-        unique: true,
+        unique: true,               // Email must be unique
         required: true,
     },
     password: {
         type: String,
         required: true
-    }
+    },
+    posts: [{ 
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Post', 
+    }]
 });
 
 module.exports = mongoose.model("User", User_Schema);

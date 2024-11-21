@@ -1,13 +1,13 @@
 const express = require('express');
-const usercontroler = require('../controler/User_controller');
+const user_controler = require('../controler/User_controller');
 
 const router = express.Router()
 
 router.route('/register')
-    .post(usercontroler.user_register)
+    .post(user_controler.user_register)
 
 router.route('/login')
-    .post(usercontroler.user_login)
+    .post(user_controler.user_login)
 
 
 module.exports = router;
