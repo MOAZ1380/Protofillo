@@ -1,8 +1,12 @@
 const jwt = require('jsonwebtoken');
 const http_status = require('../utils/http_status');
 const User = require('../models/Users_Schema'); 
+const asyncWrapper = require('../middleware/asyncWrapper');
 
-const verifyToken = async (req, res, next) => {
+
+
+const verifyToken = asyncWrapper(
+    async (req, res, next) => {
     const authHeader = req.headers['Authorization'] || req.headers['authorization'];
 
     if (!authHeader) {
@@ -13,10 +17,8 @@ const verifyToken = async (req, res, next) => {
         });
     }
     const token = authHeader.split(' ')[1];  // del "Bearer"
-    try {
         const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
-        console.log(decodedToken);
-        
+        // console.log(decodedToken);
         const user = await User.findOne({ email: decodedToken.email });
         
         if (!user) {
@@ -29,15 +31,6 @@ const verifyToken = async (req, res, next) => {
         
         req.user = decodedToken;
         next();
-    } catch (err) {
-        console.error(err); 
-        return res.status(401).json({
-            message: "Invalid token",
-            status_code: 401,
-            status_text: http_status.ERROR,
-            error: err.message,
-        });
-    }
-};
+});
 
 module.exports = verifyToken;

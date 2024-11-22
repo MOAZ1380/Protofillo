@@ -4,23 +4,25 @@ const User_Schema = mongoose.Schema({
     firstName: {
         type: String,
         required: true,
+        trim: true,
     },
     lastName: {
         type: String,
         required: true,
+        trim: true,
     },
     sex: {
         type: String,
-        enum: ['male', 'female'],       // Must be either 'male' or 'female'
+        enum: ['male', 'female'], 
         required: true ,
     },
     photo: {
         type: String,
-        default: '../uploads/profile.jpg'      // Default profile picture
+        default: '../uploads/profile.jpg'    
     },
     createdAt: {
         type: Date,
-        default:  Date.now           // Automatically sets the creation date
+        default:  Date.now          
     },
     birthDate: {
         type: Date,
@@ -28,7 +30,7 @@ const User_Schema = mongoose.Schema({
     },
     email: {
         type: String,
-        unique: true,               // Email must be unique
+        unique: true,              
         required: true,
     },
     password: {
