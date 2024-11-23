@@ -5,6 +5,10 @@ node_modules/
 *.log
 
 # Ignore environment variables files
-# .env
+.env 
+
+# PORT = your_port
+# URL = mongodb+srv://<user_name>:<password>@learn-mongo-db.jtmfs.mongodb.net/<your_db>?retryWrites=true&w=majority&appName=learn-mongo-db
+# JWT_SECRET = <secret>  
 
 # Ignore other files or directories as needed

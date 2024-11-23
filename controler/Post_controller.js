@@ -8,44 +8,37 @@ const httpstatus = require('../utils/http_status');
 // main page to add post
 const add_post = asyncWrapper(
     async (req, res, next) => {
-        const { title, content } = req.body;
+        const { content } = req.body;
         const userId = req.user.id;
-        if(!title || !content){   
-            let error = AppError.create("title and content required",  400, httpstatus.FAIL);
-            return next(error);               // Prevent repetition We want to create a function to generate error messages
-        }
 
-        const old_title = await Post.findOne({ title });
-        if(old_title){
-            let error = AppError.create("This title is already taken, please choose another one.",  400, httpstatus.FAIL);
+        if (!content) {   
+            let error = AppError.create("content is required", 400, httpstatus.FAIL);
             return next(error);
         }
 
-        if (title.length < 5 || title.length > 100) {
-            let error = AppError.create("Title must be between 5 and 100 characters long",  400, httpstatus.FAIL);
-            return next(error);
-        }
-
-        if (content.length < 5 || content.length > 5000) {
-            let error = AppError.create("Content must be between 5 and 5000 characters long",  400, httpstatus.FAIL);
+        if (content.length < 1 || content.length > 5000) {
+            let error = AppError.create("Content must be between 1 and 5000 characters long", 400, httpstatus.FAIL);
             return next(error);
         }
 
         const newPost = new Post({
-            title,
+            photo: req.file.filename,
             content,
-            user: userId
+            user: userId,
         });
+
         await newPost.save();
+
         const user = await User.findById(userId);
         user.posts.push(newPost._id);
         await user.save();
-        
+
         res.status(201).json({
             status: httpstatus.SUCCESS,
             data: { post: newPost },
         });
 });
+
 
 
 
@@ -57,6 +50,7 @@ const get_all_post = asyncWrapper(
         const skip  = (page - 1) * page_size;
 
         const posts = await Post.find()
+        .sort({ updated_at: -1 })
         .skip(skip)
         .limit(Number(page_size))
         .exec();
@@ -66,6 +60,9 @@ const get_all_post = asyncWrapper(
             data: posts,
         });
 });
+
+
+
 
 
 // my_profile -> my_data and my_posts
@@ -85,14 +82,27 @@ const my_profile = asyncWrapper(
         });
 });
 
+
+
+
+
+
+
 // update_post
 const update_post = asyncWrapper(
-    async (req, res) => {
-        const { post_id, title, content } = req.body;
-        const post = await Post.findOne({ _id: post_id });
+    async (req, res, next) => {
+        const { content } = req.body;
+        const { post_id }= req.params;
 
-        if (title) post.title = title;
+        const post = await Post.findById(post_id);
+        if (!post) {
+            let error = AppError.create("Post not found", 404, httpstatus.FAIL);
+            return next(error);
+        }
+
         if (content) post.content = content;
+        if (req.file) post.photo = req.file.filename; 
+
         post.updated_at = Date.now();
 
         await post.save();
@@ -104,6 +114,9 @@ const update_post = asyncWrapper(
             updatedPost: post,
         });
 });
+
+
+
 
 
 module.exports = {
